@@ -1,0 +1,36 @@
+syntax = "proto3";
+package com.example.grpc;
+
+message Request {
+  string filePath = 1;
+}
+
+message WriteResponse {
+  int32 nodeId = 1;
+  int64 loadId = 2;
+
+  enum ErrorCode {
+    ALREADY_EXISTS = 0;
+  }
+
+  ErrorCode error_code = 3;
+  string error_message = 4;
+}
+
+message ReadResponse {
+  int32 nodeId = 1;
+  int64 loadId = 2;
+
+  enum ErrorCode {
+    NOT_FOUND = 0;
+    RESOURCE_EXHAUSTED = 1;
+  }
+
+  ErrorCode error_code = 3;
+  string error_message = 4;
+}
+
+service CoordinatorService {
+  rpc writeFile(Request) returns (WriteResponse);
+  rpc readFile(Request) returns (ReadResponse);
+}

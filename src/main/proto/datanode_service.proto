@@ -1,0 +1,24 @@
+syntax = "proto3";
+package com.example.grpc;
+
+message FileData {
+  string filePath = 1;
+  int32 nodeId = 2;
+  int64 loadId = 3;
+}
+
+message Chunks {
+  oneof data {
+    FileData metaData = 1;
+    bytes chunks = 2;
+  }
+}
+
+message SuccessStatus {
+  bool success = 1;
+}
+
+service DatanodeService {
+  rpc writeFile(stream Chunks) returns (SuccessStatus);
+  rpc readFile(FileData) returns (stream Chunks);
+}
