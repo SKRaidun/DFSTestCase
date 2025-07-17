@@ -11,8 +11,8 @@ import static org.mockito.Mockito.*;
 
 class CoordinatorServiceImplTest {
 
-    private CoordinatorServiceImpl coordinatorService;
-    private StreamObserver<CoordinatorServiceOuterClass.WriteResponse> writeResponseObserver;
+    CoordinatorServiceImpl coordinatorService;
+    StreamObserver<CoordinatorServiceOuterClass.WriteResponse> writeResponseObserver;
     private StreamObserver<CoordinatorServiceOuterClass.ReadResponse> readResponseObserver;
 
     @BeforeEach

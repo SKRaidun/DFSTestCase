@@ -60,8 +60,8 @@ public class App
                         .usePlaintext().build();
 
         ClientController client = new ClientController(channel);
-        for (int i = 0; i < 1; i++) {
-            byte[] fileContent = generateLargeTextFile(1000);
+        for (int i = 0; i < 100; i++) {
+            byte[] fileContent = generateLargeTextFile(1);
 
             try {
                 client.writeFileRequest("/file.txt" + i, fileContent);

@@ -12,10 +12,10 @@ import static org.mockito.Mockito.*;
 
 class DataNodeServiceImplTest {
 
-    private DataNodeServiceImpl dataNodeService;
+    DataNodeServiceImpl dataNodeService;
 
     @Mock
-    private StreamObserver<DatanodeServiceOuterClass.SuccessStatus> successStatusObserver;
+    StreamObserver<DatanodeServiceOuterClass.SuccessStatus> successStatusObserver;
     @Mock
     private StreamObserver<DatanodeServiceOuterClass.Chunks> chunksObserver;
 

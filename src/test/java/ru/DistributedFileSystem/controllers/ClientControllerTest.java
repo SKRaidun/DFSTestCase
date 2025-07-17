@@ -15,9 +15,9 @@ import static org.mockito.Mockito.*;
 
 class ClientControllerTest {
 
-    private ClientController clientController;
-    private CoordinatorServiceGrpc.CoordinatorServiceBlockingStub coordinatorStub;
-    private DatanodeServiceGrpc.DatanodeServiceStub datanodeStub;
+    ClientController clientController;
+    CoordinatorServiceGrpc.CoordinatorServiceBlockingStub coordinatorStub;
+    DatanodeServiceGrpc.DatanodeServiceStub datanodeStub;
 
     @BeforeEach
     void setUp() {
