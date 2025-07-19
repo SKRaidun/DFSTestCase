@@ -13,6 +13,8 @@ import java.util.HashMap;
 public class DataNodeServiceImpl extends DatanodeServiceGrpc.DatanodeServiceImplBase {
     final HashMap<Long, byte[]> datanode = new HashMap<>();
 
+
+
     @Override
     public StreamObserver<DatanodeServiceOuterClass.Chunks> writeFile(StreamObserver<DatanodeServiceOuterClass.SuccessStatus> streamObserver) {
         return new StreamObserver<DatanodeServiceOuterClass.Chunks>() {
@@ -43,6 +45,7 @@ public class DataNodeServiceImpl extends DatanodeServiceGrpc.DatanodeServiceImpl
             @Override
             public void onCompleted() {
                 datanode.put(loadId, data.toByteArray());
+
                 System.out.println(datanode.get(loadId));
                 streamObserver.onNext(DatanodeServiceOuterClass.SuccessStatus.newBuilder().setSuccess(true).build());
                 streamObserver.onCompleted();

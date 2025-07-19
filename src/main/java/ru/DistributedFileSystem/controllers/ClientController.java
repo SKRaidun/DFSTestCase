@@ -24,9 +24,12 @@ public class ClientController {
         this.coordinatorServiceGrpc = CoordinatorServiceGrpc.newBlockingStub(channel);
     }
 
+
+
     public void writeFileRequest(String filePath, byte[] data) {
         CoordinatorServiceOuterClass.Request request = CoordinatorServiceOuterClass.Request.newBuilder().setFilePath(filePath).build();
         CoordinatorServiceOuterClass.WriteResponse response = coordinatorServiceGrpc.writeFile(request);
+
 
         CountDownLatch finishLatch = new CountDownLatch(1);
 
@@ -38,9 +41,9 @@ public class ClientController {
         DatanodeServiceGrpc.DatanodeServiceStub datanodeServiceStub = DatanodeServiceGrpc.newStub(dataNodeChannel);
 
 
-
         int nodeId = response.getNodeId();
         Long loadId = response.getLoadId();
+
 
 
         StreamObserver<DatanodeServiceOuterClass.SuccessStatus> streamObserver = new StreamObserver<DatanodeServiceOuterClass.SuccessStatus>() {
@@ -61,6 +64,7 @@ public class ClientController {
             }
         };
 
+
         StreamObserver<DatanodeServiceOuterClass.Chunks> uploadStream = datanodeServiceStub.writeFile(streamObserver);
         uploadStream.onNext(DatanodeServiceOuterClass.Chunks.newBuilder().setMetaData(DatanodeServiceOuterClass.FileData.newBuilder().setLoadId(loadId).setNodeId(nodeId).build()).build());
 
@@ -70,6 +74,8 @@ public class ClientController {
             uploadStream.onNext(DatanodeServiceOuterClass.Chunks.newBuilder().setChunks(ByteString.copyFrom(data, i, end - i)).build());
         }
 
+        CoordinatorServiceOuterClass.expiresTime expiresTime = CoordinatorServiceOuterClass.expiresTime.newBuilder().setFilePath(filePath).build();
+        coordinatorServiceGrpc.setExpiresAtTime(expiresTime);
         uploadStream.onCompleted();
 
         try {
@@ -88,10 +94,6 @@ public class ClientController {
         CoordinatorServiceOuterClass.ReadResponse response = coordinatorServiceGrpc.readFile(
                 CoordinatorServiceOuterClass.Request.newBuilder().setFilePath(filePath).build()
         );
-
-        System.out.println(response.getLoadId());
-
-        System.out.println("Reading file from node: " + response.getNodeId() + ", loadId = " + response.getLoadId());
 
 
         ManagedChannel dataNodeChannel = ManagedChannelBuilder.forAddress("localhost", 50051 + response.getNodeId())
@@ -113,6 +115,9 @@ public class ClientController {
             while (chunks.hasNext()) {
                 fileData.write(chunks.next().getChunks().toByteArray());
             }
+
+            CoordinatorServiceOuterClass.expiresTime expiresTime = CoordinatorServiceOuterClass.expiresTime.newBuilder().setFilePath(filePath).build();
+            coordinatorServiceGrpc.setExpiresAtTime(expiresTime);
 
             return fileData.toByteArray();
         } finally {

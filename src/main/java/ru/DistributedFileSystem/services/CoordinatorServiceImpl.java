@@ -5,6 +5,8 @@ import com.example.grpc.CoordinatorServiceOuterClass;
 import io.grpc.stub.StreamObserver;
 import ru.DistributedFileSystem.data.FileMetaData;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,6 +63,7 @@ public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorSe
             FileMetaData metaData = coordinator.get(filePath);
             int nodeId = metaData.getNodeId();
             long loadId = metaData.getLoadId();
+            System.out.println(metaData.getExpires_at());
 
             if (!datanodesList.get(nodeId)) {
                 responseBuilder.setErrorCode(CoordinatorServiceOuterClass.ReadResponse.ErrorCode.RESOURCE_EXHAUSTED)
@@ -73,6 +76,19 @@ public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorSe
         responseStreamObserver.onNext(responseBuilder.build());
         responseStreamObserver.onCompleted();
 
+    }
+
+    @Override
+    public void setExpiresAtTime(CoordinatorServiceOuterClass.expiresTime expiresAtTime, StreamObserver<CoordinatorServiceOuterClass.timeStatus> timeStatusStreamObserver) {
+        String filePath = expiresAtTime.getFilePath();
+        FileMetaData metaData = coordinator.get(filePath);
+        metaData.setExpires_at(Timestamp.valueOf(LocalDateTime.now()));
+        coordinator.put(filePath, metaData);
+
+        CoordinatorServiceOuterClass.timeStatus.Builder builder = CoordinatorServiceOuterClass.timeStatus.newBuilder();
+        builder.setErrorCode(CoordinatorServiceOuterClass.timeStatus.ErrorCode.OK);
+        timeStatusStreamObserver.onNext(builder.build());
+        timeStatusStreamObserver.onCompleted();
     }
 
 

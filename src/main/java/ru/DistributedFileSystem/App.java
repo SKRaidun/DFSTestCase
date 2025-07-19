@@ -60,19 +60,16 @@ public class App
                         .usePlaintext().build();
 
         ClientController client = new ClientController(channel);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 2; i++) {
             byte[] fileContent = generateLargeTextFile(1);
 
             try {
                 client.writeFileRequest("/file.txt" + i, fileContent);
             } finally {}
         }
-
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2; i++) {
             try {
                 byte[] content = client.readFileRequest("/file.txt" + i);
-                System.out.println("First 100: " +
-                        new String(content, 0, Math.min(1000, content.length)));
             } finally {
             }
         }
