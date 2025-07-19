@@ -1,8 +1,14 @@
 syntax = "proto3";
 package com.example.grpc;
+import "google/protobuf/timestamp.proto";
 
 message Request {
   string filePath = 1;
+}
+
+message expiresTime {
+  string filePath = 1;
+  google.protobuf.Timestamp expires_time = 2;
 }
 
 message WriteResponse {
@@ -30,7 +36,16 @@ message ReadResponse {
   string error_message = 4;
 }
 
+message timeStatus {
+  enum ErrorCode {
+    OK = 0;
+    RESOURCE_EXHAUSTED = 1;
+  }
+  ErrorCode error_code = 1;
+}
+
 service CoordinatorService {
   rpc writeFile(Request) returns (WriteResponse);
   rpc readFile(Request) returns (ReadResponse);
+  rpc setExpiresAtTime(expiresTime) returns (timeStatus);
 }
