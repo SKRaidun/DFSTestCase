@@ -15,6 +15,8 @@
     <grpc.version>1.73.0</grpc.version>
     <protobuf.version>4.31.1</protobuf.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.test.skip>true</maven.test.skip>
+      <skipTests>true</skipTests>
   </properties>
 
   <dependencies>

@@ -6,6 +6,15 @@ public class FileMetaData {
     private Integer nodeId;
     private Long loadId;
     private Timestamp expires_at;
+    boolean finalize;
+
+    public boolean isFinalize() {
+        return finalize;
+    }
+
+    public void setFinalize(boolean finalize) {
+        this.finalize = finalize;
+    }
 
     public void setNodeId(Integer nodeId) {
         this.nodeId = nodeId;
