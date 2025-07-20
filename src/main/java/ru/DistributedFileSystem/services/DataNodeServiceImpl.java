@@ -79,5 +79,15 @@ public class DataNodeServiceImpl extends DatanodeServiceGrpc.DatanodeServiceImpl
         streamObserver.onCompleted();
     }
 
+    @Override
+    public void deleteFile(DatanodeServiceOuterClass.toDeleteFile toDeleteFile, StreamObserver<DatanodeServiceOuterClass.SuccessStatus> successStatusStreamObserver) {
+
+        long loadId = toDeleteFile.getLoadId();
+
+        datanode.remove(loadId);
+        successStatusStreamObserver.onNext(DatanodeServiceOuterClass.SuccessStatus.newBuilder().setSuccess(true).build());
+        successStatusStreamObserver.onCompleted();
+    }
+
 
 }

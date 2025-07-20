@@ -5,6 +5,7 @@ message FileData {
   string filePath = 1;
   int32 nodeId = 2;
   int64 loadId = 3;
+  bool finalize = 4;
 }
 
 message Chunks {
@@ -18,7 +19,12 @@ message SuccessStatus {
   bool success = 1;
 }
 
+message toDeleteFile {
+  int64 loadId = 1;
+}
+
 service DatanodeService {
   rpc writeFile(stream Chunks) returns (SuccessStatus);
   rpc readFile(FileData) returns (stream Chunks);
+  rpc deleteFile(toDeleteFile) returns (SuccessStatus);
 }

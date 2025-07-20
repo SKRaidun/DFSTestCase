@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 
 public class App 
@@ -43,9 +45,13 @@ public class App
         return bos.toByteArray();
     }
 
+
+
     public static void main( String[] args ) throws IOException, InterruptedException {
+
         Server server = ServerBuilder.forPort(8080).addService(new CoordinatorServiceImpl()).build();
         server.start();
+
 
 
         int[] dataNodePorts = {50051, 50052, 50053};
@@ -60,17 +66,40 @@ public class App
                         .usePlaintext().build();
 
         ClientController client = new ClientController(channel);
-        for (int i = 0; i < 2; i++) {
-            byte[] fileContent = generateLargeTextFile(1);
 
-            try {
-                client.writeFileRequest("/file.txt" + i, fileContent);
-            } finally {}
+        for (int i = 0; i < 3; i++) {
+            byte[] fileContent = generateLargeTextFile(1);
+            client.writeFileRequest("/file_test_" + i, fileContent);
+
+            if (i == 1) {
+                Thread.sleep(5000);
+                continue;
+            }
+            if (i == 2) {
+               Thread.sleep(5000);
+            }
         }
-        for (int i = 0; i < 2; i++) {
+
+        for (int i = 0; i < 3; i++) {
+            String filePath = "/file_test_" + i;
             try {
-                byte[] content = client.readFileRequest("/file.txt" + i);
-            } finally {
+                byte[] content = client.readFileRequest(filePath);
+                System.out.println("Файл " + filePath + " существует, размер: " + content.length + " байт");
+            } catch (Exception e) {
+                System.out.println("Файл " + filePath + " удалён (ожидаемо для i=1 и i=2): " + e.getMessage());
+            }
+        }
+
+        Thread.sleep(20000);
+
+
+        for (int i = 0; i < 3; i++) {
+            String filePath = "/file_test_" + i;
+            try {
+                byte[] content = client.readFileRequest(filePath);
+                System.out.println("Файл " + filePath + " существует, размер: " + content.length + " байт");
+            } catch (Exception e) {
+                System.out.println("Файл " + filePath + " удалён (ожидаемо для i=1 и i=2): " + e.getMessage());
             }
         }
     }
