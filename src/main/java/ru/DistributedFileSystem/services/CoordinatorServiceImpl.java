@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorServiceImplBase {
 
-    public final HashMap<String, FileMetaData> coordinator = new HashMap<>();
+    public HashMap<String, FileMetaData> coordinator = new HashMap<>();
     public final ArrayList<Boolean> datanodesList =  new ArrayList<>(Arrays.asList(true, true, true));
-    private final ScheduledExecutorService fileDaemon;
+    public final ScheduledExecutorService fileDaemon;
 
     public CoordinatorServiceImpl() {
         ThreadFactory threadFactory = runnable -> {
@@ -33,12 +33,12 @@ public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorSe
         cleanOldFiles();
     }
 
-    private void cleanOldFiles() {
+    public void cleanOldFiles() {
         fileDaemon.scheduleAtFixedRate(deleteFiles(), 0, 10, TimeUnit.SECONDS);
     }
 
 
-    private Runnable deleteFiles() {
+    Runnable deleteFiles() {
 
         return () -> {
 
@@ -48,8 +48,7 @@ public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorSe
 
             while(iterator.hasNext()) {
                 Map.Entry<String, FileMetaData> element = iterator.next();
-                String key = element.getKey();
-                FileMetaData meta = coordinator.get(key);
+                FileMetaData meta = element.getValue();
                 if (meta.getExpires_at().compareTo(currentTime) < 0) {
                     deleteFileFromDataNode(meta.getNodeId(), meta.getLoadId());
                     iterator.remove();
@@ -60,7 +59,7 @@ public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorSe
         };
     }
 
-    private void deleteFileFromDataNode(int nodeId, long loadId) {
+    protected void deleteFileFromDataNode(int nodeId, long loadId) {
 
         ManagedChannel dataNodeChannel = ManagedChannelBuilder.forAddress("localhost", 50051 + nodeId)
                 .usePlaintext()
@@ -139,7 +138,7 @@ public class CoordinatorServiceImpl extends CoordinatorServiceGrpc.CoordinatorSe
     public void setExpiresAtTime(CoordinatorServiceOuterClass.expiresTime expiresAtTime, StreamObserver<CoordinatorServiceOuterClass.timeStatus> timeStatusStreamObserver) {
         String filePath = expiresAtTime.getFilePath();
         FileMetaData metaData = coordinator.get(filePath);
-        metaData.setExpires_at(Timestamp.valueOf(LocalDateTime.now().plusSeconds(1)));
+        metaData.setExpires_at(Timestamp.valueOf(LocalDateTime.now().plusSeconds(120)));
         metaData.setFinalize(true);
         coordinator.put(filePath, metaData);
 
